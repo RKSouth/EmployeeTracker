@@ -248,13 +248,21 @@ function updateER() {
 let eArray = [];
 let rArray = [];
 viewR();
-for (i=0; i < roles.length; i++){
-  rArray.push(roles[i].title);
-};
-for (i=0; i < employees.length; i++){
-  eArray.push(employees[i].Employee);
-  //console.log(value[i].name);
-}
+var query = "SELECT employee.id, concat(employee.first_name, ' ' ,  employee.last_name) AS Employee FROM employee ORDER BY Employee ASC";
+connection.query(query, function(err, res) {
+  // for (i=0; i < res.length; i++){
+      eArray = res;
+      console.table(eArray);
+    // }
+});
+// for (i=0; i < roles.length; i++){
+//   rArray.push(roles[i].title);
+//   console.log(rArray);
+// };
+// for (i=0; i < employees.length; i++){
+//   eArray.push(employees[i].Employee);
+//   console.table(eArray);
+// }
 }
 
 function updateEMS() {
