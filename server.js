@@ -19,7 +19,7 @@ connection.connect(function(err) {
   if (err) throw err;
   runSearch();
 });
-
+//Beginning function- prompt
 function runSearch() {
   inquirer
     .prompt({
@@ -60,7 +60,7 @@ function runSearch() {
 }
 //NEED DEPARTMENT, ROLE, EMPLOYEE CLASSES TO THEN CALL 
 
-
+//main view function
 function viewDRE() {
     // FIRST ASK DEPARTMENT ROLE EMPLOYEE OR GO BACK 
     inquirer
@@ -101,7 +101,8 @@ runSearch();
 }     
           
 function viewR() {
-    var query = "SELECT * FROM roles";
+    var query = "SELECT roles.id , roles.title , roles.salary AS salary, department.deptname AS department FROM roles";
+    query += " LEFT JOIN department ON (roles.department_id = department.id)";
     connection.query(query, function(err, res) {
         console.table(res);
     })
@@ -113,7 +114,7 @@ function  viewE() {
         console.table(res);
     })
 }        
-
+//main add function
 function addDRE() {
   inquirer
       .prompt({
@@ -125,7 +126,7 @@ function addDRE() {
       .then(function(answer) {
         switch (answer.add) {
             case "departments":
-                addD(answer.view);
+                addD(answer.add);
             break;
             case "roles":
                 addR();
@@ -139,4 +140,143 @@ function addDRE() {
                 break;
 
         } });
+}
+
+function addD(){
+  inquirer
+  .prompt([
+    {
+    name: "id",
+    type: "input",
+    message: "Please input department id"
+  },
+  {
+    name: "deptname",
+    type: "input",
+    message: "Please input department name"
+  }]
+
+    ).then(function(answer) {
+      // var values = [id, deptname];
+      // var query = "INSERT INTO department (id, deptname) VALUE  = ? ?";
+      connection.query("INSERT INTO department (id, deptname) VALUES (?,?)", [answer.id, answer.deptname]);
+      console.log("\x1b[32m", `${answer.deptname} was added to departments.`);
+      runSearch();
+    
+});
+// viewD();
+
+    // })
+
+
+}
+function addR() {
+  inquirer
+  .prompt([
+    {
+    name: "id",
+    type: "input",
+    message: "Please input a new role id"
+  },
+  {
+    name: "title",
+    type: "input",
+    message: "Please input role title"
+  },
+  {
+    name: "salary",
+    type: "input",
+    message: "Please input role salary"
+  },
+  {
+    name: "department_id",
+    type: "input",
+    message: "Please input a department id"
+  }]
+
+    ).then(function(answer) {
+      // var values = [id, deptname];
+      // var query = "INSERT INTO department (id, deptname) VALUE  = ? ?";
+      connection.query("INSERT INTO roles (id, title, salary, department_id) VALUES (?,?,?,?)", [answer.id, answer.title, answer.salary, answer.department_id]);
+      console.log("\x1b[32m", `${answer.title} was added to roles.`);
+      runSearch();
+    
+});
+
+}
+function addE() {
+  inquirer
+  .prompt([
+    {
+    name: "id",
+    type: "input",
+    message: "Please input a new employee id"
+  },
+  {
+    name: "first_name",
+    type: "input",
+    message: "Please input employees first name"
+  },
+  {
+    name: "last_name",
+    type: "input",
+    message: "Please input employees last name"
+  },
+  {
+    name: "role_id",
+    type: "input",
+    message: "Please input a role id"
+  },
+  {
+    name: "manager_id",
+    type: "input",
+    message: "Please input a manager id"
+  }]
+
+    ).then(function(answer) {
+      // var values = [id, deptname];
+      // var query = "INSERT INTO department (id, deptname) VALUE  = ? ?";
+      connection.query("INSERT INTO employee (id, first_name, last_name, role_id, manager_id) VALUES (?,?,?,?,?)", [answer.id, answer.first_name, answer.last_name, answer.role_id, answer.manager_id]);
+      console.log("\x1b[32m", `${answer.first_name} ${answer.last_name} was added to employees.`);
+      runSearch();
+    
+});
+
+}
+
+function updateER() {
+let eArray = [];
+let rArray = [];
+viewR();
+for (i=0; i < roles.length; i++){
+  rArray.push(roles[i].title);
+};
+for (i=0; i < employees.length; i++){
+  eArray.push(employees[i].Employee);
+  //console.log(value[i].name);
+}
+}
+
+function updateEMS() {
+
+}
+
+function viewEByM() {
+
+}
+
+function forgetDRE() {
+
+}
+
+function forgetD() {
+
+}
+
+function forgetR() {
+
+}
+
+function forgetE() {
+
 }
