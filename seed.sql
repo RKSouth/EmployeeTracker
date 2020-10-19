@@ -1,92 +1,39 @@
--- * **department**:
 
---   * **id** - INT PRIMARY KEY
---   * **name** - VARCHAR(30) to hold department name
-
--- * **role**:
-
---   * **id** - INT PRIMARY KEY
---   * **title** -  VARCHAR(30) to hold role title
---   * **salary** -  DECIMAL to hold role salary
---   * **department_id** -  INT to hold reference to department role belongs to
-
--- * **employee**:
-
---   * **id** - INT PRIMARY KEY
---   * **first_name** - VARCHAR(30) to hold employee first name
---   * **last_name** - VARCHAR(30) to hold employee last name
---   * **role_id** - INT to hold reference to role employee has
---   * **manager_id** - INT to hold reference to another employee that manager of the current employee. 
---   This field may be null if the employee has no manager
-
--- DROP DATABASE IF EXISTS top_songsDB; changed to employeetracker_DB
+-- DROP DATABASE IF EXISTS  employeetracker_db;
 CREATE database employeetracker_db;
 
 USE employeetracker_db;
 
 -- CREATE TABLE top5000 changed to department
 CREATE TABLE department (
---   position INT NOT NULL,
-  id INT PRIMARY KEY,
-  name VARCHAR(30),
---   artist VARCHAR(100) NULL,
---   song VARCHAR(100) NULL,
---   year INT NULL,
---   raw_total DECIMAL(10,4) NULL,
---   raw_usa DECIMAL(10,4) NULL,
---   raw_uk DECIMAL(10,4) NULL,
---   raw_eur DECIMAL(10,4) NULL,
---   raw_row DECIMAL(10,4) NULL,
---   PRIMARY KEY (position)
- PRIMARY KEY (id)
+id INT PRIMARY KEY,
+deptname VARCHAR(30)
 );
 -- CREATE TABLE top_albums ( changed to roles
 CREATE TABLE roles (
 --   position INT NOT NULL,
   id INT PRIMARY KEY,
   title VARCHAR(30),
-  salary DECIMAL(10,4),
-  department_id INT NOT NULL,
---   artist VARCHAR(100) NULL,
---   album VARCHAR(100) NULL,
---   year INT NULL,
---   raw_total DECIMAL(10,4) NULL,
---   raw_usa DECIMAL(10,4) NULL,
---   raw_uk DECIMAL(10,4) NULL,
---   raw_eur DECIMAL(10,4) NULL,
---   raw_row DECIMAL(10,4) NULL,
---   PRIMARY KEY (position)
-  PRIMARY KEY (id)
+  salary DECIMAL(10,2),
+  department_id INT NOT NULL
 );
 
 CREATE TABLE employee (
 
-    -- * **employee**:
-
---   * **id** - INT PRIMARY KEY
---   * **first_name** - VARCHAR(30) to hold employee first name
---   * **last_name** - VARCHAR(30) to hold employee last name
---   * **role_id** - INT to hold reference to role employee has
---   * **manager_id** - INT to hold reference to another employee that manager of the current employee. 
---   This field may be null if the employee has no manager
---   position INT NOT NULL,
   id INT PRIMARY KEY,
   first_name VARCHAR(30),
   last_name VARCHAR(30),
   role_id INT NOT NULL,
-  department_id INT,
---   artist VARCHAR(100) NULL,
---   album VARCHAR(100) NULL,
---   year INT NULL,
---   raw_total DECIMAL(10,4) NULL,
---   raw_usa DECIMAL(10,4) NULL,
---   raw_uk DECIMAL(10,4) NULL,
---   raw_eur DECIMAL(10,4) NULL,
---   raw_row DECIMAL(10,4) NULL,
---   PRIMARY KEY (position)
-  PRIMARY KEY (id)
+  manager_id INT(30)
 );
+INSERT INTO department (id, deptname)
+VALUES (13 , "kitchen");
+INSERT INTO roles (id, title, salary, department_id)
+VALUES (120 , "chef", 300, 12);
+INSERT INTO employee (id, first_name, last_name, role_id, manager_id)
+VALUES (1201 , "Bentley", "Kelm-Southworth", 120, 3);
+
 
 SELECT * FROM department;
-select * from roles;
-select * from employees;
+SELECT * from roles;
+SELECT * from employee;
