@@ -303,14 +303,11 @@ function updateER() {
 };
 
   function updateEMS() {
-    //update employee by managers change roles to managers
+    //update employee managers change roles to managers
     let eArray = [];
-   
     let mArray = [];
-
-
-  let rArray = [];
-
+    let rArray = [];
+//getting managers id
   connection.query("SELECT manager_id FROM roles", function (err, res) {
     if (err) throw err;
     for (var i = 0; i < res.length; i++) {
@@ -318,9 +315,8 @@ function updateER() {
     }
 
   });
-
-
-    connection.query("SELECT manager, deptid FROM department", function (err, res) {
+//getting managers name
+  connection.query("SELECT manager, deptid FROM department", function (err, res) {
       if (err) throw err;
       for (var i = 0; i < res.length; i++) {
         mArray.push(res[i]);
@@ -328,14 +324,13 @@ function updateER() {
       }
   
     });
-  
-    var query = "SELECT employee.empid, employee.first_name FROM employee;";
-    connection.query(query, function (err, res) {
+  //getting employee to update
+    connection.query( "SELECT employee.empid, employee.first_name FROM employee;", function (err, res) {
       if (err) throw err;
      
       for (var i = 0; i < res.length; i++) {
         eArray.push(res[i].first_name);
-        eArrayID.push(res[i]);
+        // eArrayID.push(res[i]);
    
       }
       inquirer
@@ -353,7 +348,8 @@ function updateER() {
   
   //look up role id number so we can attach it to employee table
   //look up employee id and change the employee
-          connection.query(`Update employee SET role_id = (select roleid from roles where title = ?) WHERE first_name = ?`, [answer.roles, answer.employees]);
+  //change manager id to the person you selected
+          connection.query(`Update employee SET manager_id = (select manager_id from roles where title = ?) WHERE first_name = ?`, [answer.roles, answer.employees]);
           console.log("\x1b[32m", `${answer.employees}'s role was updated to ${answer.roles}.`);
           runSearch();
   
@@ -370,7 +366,8 @@ function updateER() {
 
   // }
 
-  function forgetDRE() {inquirer
+  function forgetDRE() {
+    inquirer
     .prompt({
       name: "view",
       type: "rawlist",
@@ -399,7 +396,41 @@ function updateER() {
   }
 
   function forgetD() {
+   let ddArray= [];
+    connection.query("SELECT deptname FROM department", function (err, res) {
+      if (err) throw err;
+      for (var i = 0; i < res.length; i++) {
+        ddArray.push(res[i].deptname);
+        // console.table(ddArray);
+      }
+      console.log(ddArray);
+   
+    // .then( 
+      // function(ddArray){
+      inquirer.
+      prompt([
+        {name: "selectDepartment",
+        type: "list",
+        message: "What department would you like to delete?",
+        choices: ddArray
+      }
+    ]).then ( function(answer) {
 
+    connection.query('DELETE department FROM department WHERE deptname = ?', [answer.selectDepartment], function (err, results) {
+    if (err) throw error;
+    console.log('deleted the ' + results.selectDepartment + ' ');
+  })
+      });
+    // })
+
+    
+  //   connection.query('DELETE FROM department WHERE title = "wrong"', function (error, results, fields) {
+  //   if (error) throw error;
+  //   console.log('deleted ' + results.affectedRows + ' rows');
+  // })
+  });
+
+  runSearch();
   }
 
   function forgetR() {
