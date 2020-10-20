@@ -109,14 +109,16 @@ function viewR() {
   query += " LEFT JOIN department ON (roles.department_id = department.deptid)";
   connection.query(query, function (err, res) {
     console.table(res);
-  })
+  });
+  runSearch();
 }
 
 function viewE() {
   var query = "SELECT employee.empid, employee.first_name, employee.last_name, roles.title, department.deptname AS department, roles.salary FROM employee LEFT JOIN roles on employee.role_id = roles.addid LEFT JOIN department on roles.department_id = department.deptid;";
   connection.query(query, function (err, res) {
     console.table(res);
-  })
+  });
+  runSearch();
 }
 //main add function
 function addDRE() {
@@ -288,7 +290,7 @@ function updateER() {
 
 //look up role id number so we can attach it to employee table
 //look up employee id and change the employee
-        connection.query(`Update employee SET role_id = (select roleid from roles where title = ?) WHERE first_name = ?`, [answer.roles, answer.employees]);
+        connection.query(`Update employee SET role_id = (select addid from roles where title = ?) WHERE first_name = ?`, [answer.roles, answer.employees]);
         console.log("\x1b[32m", `${answer.employees}'s role was updated to ${answer.roles}.`);
         runSearch();
 
@@ -305,8 +307,20 @@ function updateER() {
     let eArray = [];
    
     let mArray = [];
-  // /query += " LEFT JOIN department ON (roles.department_id = department.deptid)";
-    connection.query("SELECT manager FROM department", function (err, res) {
+
+
+  let rArray = [];
+
+  connection.query("SELECT manager_id FROM roles", function (err, res) {
+    if (err) throw err;
+    for (var i = 0; i < res.length; i++) {
+      rArray.push(res[i].manager_id);
+    }
+
+  });
+
+
+    connection.query("SELECT manager, deptid FROM department", function (err, res) {
       if (err) throw err;
       for (var i = 0; i < res.length; i++) {
         mArray.push(res[i]);
@@ -334,7 +348,7 @@ function updateER() {
           name: "managers",
           type: "list",
           message: "Who is there new manager?",
-          choices: rArray
+          choices: mArray
         }]).then(function (answer) {
   
   //look up role id number so we can attach it to employee table
@@ -352,11 +366,35 @@ function updateER() {
 
   }
 
-  function viewEByM() {
+  // function viewEByM() {
 
-  }
+  // }
 
-  function forgetDRE() {
+  function forgetDRE() {inquirer
+    .prompt({
+      name: "view",
+      type: "rawlist",
+      message: "What would you like to delete?",
+      choices: ["departments", "roles", "employees", "go back"]
+    })
+    .then(function (answer) {
+      switch (answer.view) {
+        case "departments":
+          forgetD(answer.view);
+          break;
+        case "roles":
+          forgetR();
+          break;
+        case "employees":
+          forgetE();
+          break;
+        case "go back":
+          console.log("You have chosen to go back to the first question");
+          runSearch();
+          break;
+
+      }
+    });
 
   }
 
