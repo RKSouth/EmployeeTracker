@@ -46,7 +46,7 @@ function runSearch() {
         case "Update employee roles":
           updateER();
           break;
-        case "Update employee mangers":
+        case "Update employee managers":
           updateEMS();
           break;
         case "View employees by manager":
@@ -91,27 +91,29 @@ function viewDRE() {
 }
 
 function viewD() {
-  var query = "SELECT id, deptname FROM department";
+  //add manager id and have it be the same as department id- because
+  var query = "SELECT deptid, deptname, manager FROM department";
   console.log("You have chosen to view the departments");
   connection.query(query, function (err, res) {
-    console.log(res);
-    for (var i = 0; i < res.length; i++) {
-      console.log("id: " + res[i].id + " || Name: " + res[i].deptname);
-    } if (err) throw err;
+    if (err) throw err;
+    console.table(res);
+    // for (var i = 0; i < res.length; i++) {
+    //   console.log("id: " + res[i].deptid + " || Name: " + res[i].deptname);
+    // } if (err) throw err;
   });
   runSearch();
 }
 
 function viewR() {
-  var query = "SELECT roles.id , roles.title , roles.salary AS salary, department.deptname AS department FROM roles";
-  query += " LEFT JOIN department ON (roles.department_id = department.id)";
+  var query = "SELECT roles.addid , roles.title , roles.salary AS salary, department.deptname AS department FROM roles";
+  query += " LEFT JOIN department ON (roles.department_id = department.deptid)";
   connection.query(query, function (err, res) {
     console.table(res);
   })
 }
 
 function viewE() {
-  var query = "SELECT employee.id, employee.first_name, employee.last_name, roles.title, department.deptname AS department, roles.salary FROM employee LEFT JOIN roles on employee.role_id = roles.id LEFT JOIN department on roles.department_id = department.id;";
+  var query = "SELECT employee.empid, employee.first_name, employee.last_name, roles.title, department.deptname AS department, roles.salary FROM employee LEFT JOIN roles on employee.role_id = roles.addid LEFT JOIN department on roles.department_id = department.deptid;";
   connection.query(query, function (err, res) {
     console.table(res);
   })
@@ -148,21 +150,21 @@ function addDRE() {
 function addD() {
   inquirer
     .prompt([
-      {
-        name: "id",
-        type: "input",
-        message: "Please input department id"
-      },
+     
       {
         name: "deptname",
         type: "input",
         message: "Please input department name"
+      },  {
+        name: "manager",
+        type: "input",
+        message: "Please input department manager"
       }]
 
     ).then(function (answer) {
       // var values = [id, deptname];
       // var query = "INSERT INTO department (id, deptname) VALUE  = ? ?";
-      connection.query("INSERT INTO department (id, deptname) VALUES (?,?)", [answer.id, answer.deptname]);
+      connection.query("INSERT INTO department (manager, deptname) VALUES (?,?)", [answer.manager, answer.deptname]);
       console.log("\x1b[32m", `${answer.deptname} was added to departments.`);
       runSearch();
 
@@ -174,13 +176,20 @@ function addD() {
 
 }
 function addR() {
+//  let dArray= [];
+//  let dArrayID= [];
+//   var query = "SELECT department.deptid, department.deptname FROM department;";
+//   connection.query(query, function (err, res) {
+//     if (err) throw err;
+   
+//     for (var i = 0; i < res.length; i++) {
+//       dArray.push(res[i].deptid);
+//       console.log(dArray);
+//       console.log("         ")
+//     }});
+   
   inquirer
     .prompt([
-      {
-        name: "id",
-        type: "input",
-        message: "Please input a new role id"
-      },
       {
         name: "title",
         type: "input",
@@ -194,14 +203,13 @@ function addR() {
       {
         name: "department_id",
         type: "input",
-        message: "Please input a department id"
+        message: "Please choose which department this role is for(choose a number)"
       }]
 
     ).then(function (answer) {
-      // var values = [id, deptname];
-      // var query = "INSERT INTO department (id, deptname) VALUE  = ? ?";
-      connection.query("INSERT INTO roles (id, title, salary, department_id) VALUES (?,?,?,?)", [answer.id, answer.title, answer.salary, answer.department_id]);
-      console.log("\x1b[32m", `${answer.title} was added to roles.`);
+      // connection.query(`Update employee SET role_id = (select roleid from roles where title = ?) WHERE first_name = ?`, [answer.roles, answer.employees]);
+      connection.query("INSERT INTO roles (title, salary, department_id) VALUES (?,?,?)", [answer.title, answer.salary, answer.department_id]);
+      console.log("\x1b[32m", `${answer.title} is now a role in the ${answer.department_id} department.`);
       runSearch();
 
     });
@@ -210,11 +218,7 @@ function addR() {
 function addE() {
   inquirer
     .prompt([
-      {
-        name: "id",
-        type: "input",
-        message: "Please input a new employee id"
-      },
+    
       {
         name: "first_name",
         type: "input",
@@ -239,7 +243,7 @@ function addE() {
     ).then(function (answer) {
       // var values = [id, deptname];
       // var query = "INSERT INTO department (id, deptname) VALUE  = ? ?";
-      connection.query("INSERT INTO employee (id, first_name, last_name, role_id, manager_id) VALUES (?,?,?,?,?)", [answer.id, answer.first_name, answer.last_name, answer.role_id, answer.manager_id]);
+      connection.query("INSERT INTO employee ( first_name, last_name, role_id, manager_id) VALUES (?,?,?,?)", [answer.first_name, answer.last_name, answer.role_id, answer.manager_id]);
       console.log("\x1b[32m", `${answer.first_name} ${answer.last_name} was added to employees.`);
       runSearch();
 
@@ -260,14 +264,14 @@ function updateER() {
 
   });
 
-  var query = "SELECT employee.id, employee.first_name FROM employee;";
+  var query = "SELECT employee.empid, employee.first_name FROM employee;";
   connection.query(query, function (err, res) {
     if (err) throw err;
-    console.log(res[1]);
+   
     for (var i = 0; i < res.length; i++) {
       eArray.push(res[i].first_name);
       eArrayID.push(res[i]);
-      console.table(eArray);
+ 
     }
     inquirer
       .prompt([{
@@ -284,7 +288,7 @@ function updateER() {
 
 //look up role id number so we can attach it to employee table
 //look up employee id and change the employee
-        connection.query(`Update employee SET role_id = (select id from roles where title = ?) WHERE first_name = ?`, [answer.roles, answer.employees]);
+        connection.query(`Update employee SET role_id = (select roleid from roles where title = ?) WHERE first_name = ?`, [answer.roles, answer.employees]);
         console.log("\x1b[32m", `${answer.employees}'s role was updated to ${answer.roles}.`);
         runSearch();
 
@@ -297,6 +301,54 @@ function updateER() {
 };
 
   function updateEMS() {
+    //update employee by managers change roles to managers
+    let eArray = [];
+   
+    let mArray = [];
+  // /query += " LEFT JOIN department ON (roles.department_id = department.deptid)";
+    connection.query("SELECT manager FROM department", function (err, res) {
+      if (err) throw err;
+      for (var i = 0; i < res.length; i++) {
+        mArray.push(res[i]);
+        console.table(mArray);
+      }
+  
+    });
+  
+    var query = "SELECT employee.empid, employee.first_name FROM employee;";
+    connection.query(query, function (err, res) {
+      if (err) throw err;
+     
+      for (var i = 0; i < res.length; i++) {
+        eArray.push(res[i].first_name);
+        eArrayID.push(res[i]);
+   
+      }
+      inquirer
+        .prompt([{
+          name: "employees",
+          type: "list",
+          message: "Who's manager would you like to change?",
+          choices: eArray
+        }, {
+          name: "managers",
+          type: "list",
+          message: "Who is there new manager?",
+          choices: rArray
+        }]).then(function (answer) {
+  
+  //look up role id number so we can attach it to employee table
+  //look up employee id and change the employee
+          connection.query(`Update employee SET role_id = (select roleid from roles where title = ?) WHERE first_name = ?`, [answer.roles, answer.employees]);
+          console.log("\x1b[32m", `${answer.employees}'s role was updated to ${answer.roles}.`);
+          runSearch();
+  
+  
+  
+        });
+  
+  
+    });
 
   }
 
