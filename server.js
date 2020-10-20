@@ -247,14 +247,65 @@ function addE() {
 function updateER() {
 let eArray = [];
 let rArray = [];
-viewR();
-var query = "SELECT employee.id, concat(employee.first_name, ' ' ,  employee.last_name) AS Employee FROM employee ORDER BY Employee ASC";
+
+connection.query("SELECT * FROM roles", function(err, res) {
+  if (err) throw err
+  for (var i = 0; i < res.length; i++) {
+    rArray.push(res[i].title);
+  }
+
+})
+
+
+var query = `SELECT employee.id, concat(employee.first_name, ' ' ,  employee.last_name) AS Employee FROM employee ORDER BY Employee ASC;`;
+// query += `;SELECT title FROM roles`;
 connection.query(query, function(err, res) {
+  for (var i = 0; i < res.length; i++) {
+    eArray.push(res[i].Employee);
+  }
+  console.log(res);
+  // eArray = res;
+  inquirer
+    .prompt([{
+      name:"employee",
+      type: "list",
+      message:"Who's role would you like to change?",
+      choices: eArray
+    }, {
+      name: "role",
+      type: "list",
+      message:"What is their new role",
+      choices: rArray
+    }])
+
   // for (i=0; i < res.length; i++){
-      eArray = res;
-      console.table(eArray);
+    
+      // console.table(eArray);
     // }
 });
+
+// var query2 = "SELECT id , title FROM roles ";
+// connection.query(query2, function(err, res) {
+//   // for (i=0; i < res.length; i++){
+//     console.log(res);
+//       rArray = res;
+//       // console.table(rArray);
+//     // }
+// })
+// .then(
+//   inquirer
+//   .prompt([{
+//     name:"employee",
+//     type: "list",
+//     message:"Who's role would you like to change?",
+//     choices: eArray
+//   }, {
+//     name: "role",
+//     type: "list",
+//     message:"What is their new role",
+//     choices: rArray
+//   }])
+// )
 // for (i=0; i < roles.length; i++){
 //   rArray.push(roles[i].title);
 //   console.log(rArray);
