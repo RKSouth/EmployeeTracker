@@ -284,24 +284,10 @@ function updateER() {
 
 //look up role id number so we can attach it to employee table
 //look up employee id and change the employee
-        connection.query(`Update roles SET role_id = ${newRole} WHERE id = ${iceCube}`);
+        connection.query(`Update employee SET role_id = (select id from roles where title = ?) WHERE first_name = ?`, [answer.roles, answer.employees]);
         console.log("\x1b[32m", `${answer.employees}'s role was updated to ${answer.roles}.`);
         runSearch();
 
-
-        // let newRole;
-        // let iceCube;
-        // for (i = 0; i < rArray.length; i++) {
-        //   if (answer.roles === rArray[i].title) {
-        //     newRole = rArray[i].id;
-        //   }
-        // };
-        // for (i = 0; i < eArray.length; i++) {
-        //   if (answer.employees === eArray[i].Employee) {
-        //     iceCube = eArray[i].id;
-        //   }
-        
-        
 
 
       });
