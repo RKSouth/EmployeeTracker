@@ -6,7 +6,8 @@
 
 ## Table of Contents
 * [Technologies Used](#Technologies_Used)
-* [Deployed Site](#Deployed)
+* [Getting Started](#Getting_Started)
+<!-- * [Deployed Site](#Deployed) -->
 * [Features](#Features)
 * [Usage](#Usage)
 * [Author](#Author)
@@ -18,7 +19,19 @@
 * [node.js](https://www.npmjs.com/)
 * [mysql](https://www.mysqltutorial.org/)
 
+## Getting_Started
 
+Once you have downloaded all the files (or done a git pull) from my repo there are a few steps you need to follow to set it up properly:
+* Ppen up the code in mysql and visual studio code, make sure to save your msql code as the correct database name and password
+* Run the database and make sure it is all set up with the seeded code
+* In visual studio code, in a fresh integrated terminal (opened by right clicking the server.js and selecting it in the drop down) first run npm install and hit enter
+* Once install is done, type in node server.js followed by enter to begin
+
+To move throughout the menues use the arrow keys on your terminal and be sure to hit enter after you make your selection. If you run into trouble, or a completed action does not seem to have an end point and bring you back to the main set of questions - please select cltr (cmnd) + c and then re enter node server.js in the terminal, your action likely was not saved and you put something in that didn't work.
+
+<!-- * Javascript (100%) 
+* [node.js](https://www.npmjs.com/)
+* [mysql](https://www.mysqltutorial.org/) -->
 <!-- ## Deployed Site
 [Employee-Tracker](https://warm-caverns-86071.herokuapp.com/) -->
 
@@ -26,42 +39,28 @@
 
 
 ### __1. A mysql database__
-
-In order to have a wesbite that shows server side api, I had to turn to herku domain hosting. The benefit of heroku is that it's free and it's auto generated names are really fun. The downside is that you have to the name heroku in your website. 
-
+    In order to store and read files using a database manager I had to integrate mysql code into my javascript.  I also needed to build an actual database to handle the data I was passing through (because json files aren't always so efficient.) 
+![mysql-database](assets/codesnippet01.png)
+    In order to call the database I used a series of calls in various places that corresponded to the peices of code I wanted to use, then I would ask the user what they wanted to do with it, it seems a little counterintuitive but we needed the data to help make an informed choice.
+![database-calls](assets/codesnippet02.png)
 ### __2. The ability to add/delete/view employee/roles/departments__
-
-What is the point of making a note if you can't save it? First, we use the app.get function to pull the data and then we use app.post to put into both the db.json and the container to the right
-
-![Saving Notes](assets/codesnippet01.png)
- 
-### __3. An integrated suite that allows to update employees__
-
-Notes are meant to be temporary, although we do want to save them for a short time, we don't keep them forever thus the app.delete.
-
-
-![Deleting Notes](assets/codesnippet02.png)
-
-My app.delete starts about setting and parson the db.json( our notes databas) to a variable named noteTitles. I then set a second variable named noteID that requests the parameter id-this plucks the id of the note that was selected for the trash can. I also set an index equal to zero-the index will be used later in the for loop that sets all of the note id's to strings.  On linr 76 I yet again set noteTitles( my parsed db.json file) to filter out all notes that weren't selected for deletion. 
-
-I then ran a for loop, athat looks for the notes of the array and strings them back into the string. 
-
+    What is the point of a database if you cannot edit it efficiently? I feel like the I used this exemplafied the CRUD method- create the data, read the data (to the user), give the user the option to _update_ and then _delete_.
 
 ### __5. Other__
 
  __For later builds__
 
-_Incorporate as a peice of a workplace managerment website_
+_Have validation steps with each question_
 
-A good note take app is cool and all, but what about a website that helps you entirely manage your work day (sure there is google and outlook) but those sites almost have too much going and can be hard to learn how to use. Having something simpler would be easier for the less tech-savy worker. 
+Though it's not required for this assignment it would be very very helpful to make sure a user doesn't input something that blank out the system with no obvious explanation as to why
 
-_Be able to manage notes by date/time taken_
+_Have a view employee by manager section_
 
-I don't take notes in a vaccum and neither do most people. Usually notes correspond with a particular event, meeting or pontification session. I would like to track these events, for whatever purpose. 
+Because being able to edit the employe by manager should also lead to a view step. Crud and all that
 
-_Minor Design changes_
+_Have it work not in a terminal but in a web browser_
 
-I love a beautifully simple design, that doesn't add clutter to thoughts or ideas. However, when I started building this project- I could not figure out what the deal with the pen was- I still am not sure. So I would change to pen to be a word or something to make it easier to navigate.
+Because a web browser is a lot easier for most people to use.
 
   
 ## Usage

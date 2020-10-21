@@ -112,9 +112,7 @@ function viewR() {
 }
 
 function viewE() {
-  var query = "SELECT employee.empid, employee.first_name, employee.last_name, roles.title, department.deptname AS department, ";
-  var query =+ "roles.salary, mgr.managername FROM employee LEFT JOIN roles on employee.role_id = roles.addid LEFT JOIN department on";
-  var query =+ "roles.department_id = department.deptid LEFT JOIN (select concat(first_name,' ',last_name) as managername, empid from employee) as mgr on mgr.empid = employee.manager_id;";
+  var query = "SELECT employee.empid, employee.first_name, employee.last_name, roles.title, department.deptname AS department,roles.salary, mgr.manager, manager_id FROM employee LEFT JOIN roles on employee.role_id = roles.addid LEFT JOIN department on roles.department_id = department.deptid LEFT JOIN (select concat(first_name,' ',last_name) as manager, empid from employee) as mgr on mgr.empid = employee.manager_id;";
   connection.query(query, function (err, res) {
     if (err) throw err;
     console.table(res);
@@ -225,7 +223,11 @@ function addE() {
   let empIdArray = [];
   let outputRoleID;
 
-  //getting department list
+  let mngIdArray = [];
+  let mngArray = [];
+  let output;
+
+  //getting roles for employee array
     connection.query("SELECT title, addid FROM roles", function (err, res) {
       if (err) throw err;
       for (var i = 0; i < res.length; i++) {
@@ -233,6 +235,15 @@ function addE() {
         empIdArray.push(res[i].addid);
       }
     });
+    //manager id list
+    // LEFT JOIN (select concat(first_name,' ',last_name) as manager, empid from employee) as mgr on mgr.empid = employee.manager_id;
+    connection.query("SELECT mgr.manager, manager_id FROM employee LEFT JOIN (select concat(first_name,' ',last_name) as manager, empid from employee) as mgr on mgr.empid = employee.manager_id", function (err, res) {
+      if (err) throw err;
+      for (var i = 0; i < res.length; i++) {
+        mngArray.push(res[i].manager);
+        mngIdArray.push(res[i].manager_id);
+      }
+    
   inquirer
     .prompt([
       {
@@ -253,8 +264,9 @@ function addE() {
       },
       {
         name: "manager_id",
-        type: "input",
-        message: "Please input a manager id"
+        type: "list",
+        message: "Please select a manager",
+        choices: mngArray
       }]
 
     ).then(function (answer) {
@@ -263,16 +275,23 @@ function addE() {
         outputRoleID = parseInt(empIdArray[i]);       
         }  
       };
-    
+      for (let i = 0; i < mngArray.length; i++) {
+        if (answer.manager_id == mngArray[i]) {
+        output = parseInt(mngIdArray[i]);       
+        }  
+      };
+      console.log(output);
+      console.log(outputRoleID);
       connection.query("INSERT INTO employee (first_name, last_name, role_name, manager_id) VALUES (?,?,?,?)", 
-      [answer.first_name, answer.last_name, outputRoleID, answer.manager_id],
+      [answer.first_name, answer.last_name, outputRoleID, output],
        function (err) {
         if (err) throw err;
       });
-      console.log("\x1b[32m", `${answer.first_name} ${answer.last_name} was added to employees.`);
+      console.log("\x1b[32m", `${answer.first_name} ${answer.last_name} was added to employees and now works for ${answer.manager_id}.`);
       runSearch();
 
     });
+  });
 
 }
 
