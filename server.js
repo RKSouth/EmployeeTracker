@@ -112,7 +112,9 @@ function viewR() {
 }
 
 function viewE() {
-  var query = "SELECT employee.empid, employee.first_name, employee.last_name, roles.title, department.deptname AS department, roles.salary, mgr.managername FROM employee LEFT JOIN roles on employee.role_id = roles.addid LEFT JOIN department on roles.department_id = department.deptid LEFT JOIN (select concat(first_name,' ',last_name) as managername, empid from employee) as mgr on mgr.empid = employee.manager_id;";
+  var query = "SELECT employee.empid, employee.first_name, employee.last_name, roles.title, department.deptname AS department, ";
+  var query =+ "roles.salary, mgr.managername FROM employee LEFT JOIN roles on employee.role_id = roles.addid LEFT JOIN department on";
+  var query =+ "roles.department_id = department.deptid LEFT JOIN (select concat(first_name,' ',last_name) as managername, empid from employee) as mgr on mgr.empid = employee.manager_id;";
   connection.query(query, function (err, res) {
     if (err) throw err;
     console.table(res);
@@ -173,7 +175,17 @@ function addD() {
 }
 
 function addR() {
-   
+  let deptNameArray = [];
+  let deptIdArray = [];
+  let outputDeptID;
+  //getting department list
+    connection.query("SELECT deptname, deptid FROM department", function (err, res) {
+      if (err) throw err;
+      for (var i = 0; i < res.length; i++) {
+        deptNameArray.push(res[i].deptname);
+        deptIdArray.push(res[i].deptid);
+      }
+    });
   inquirer
     .prompt([
       {
@@ -187,24 +199,42 @@ function addR() {
         message: "Please input role salary"
       },
       {
-        name: "department_id",
-        type: "input",
-        message: "Please choose which department this role is for (choose a number)"
+        name: "department_name",
+        type: "list",
+        message: "Please choose which department this role is for",
+        choices: deptNameArray
         //NEEDS A VALIDATE
       }]
 
     ).then(function (answer) {
-      connection.query("INSERT INTO roles (title, salary, department_id) VALUES (?,?,?)", [answer.title, answer.salary, answer.department_id]);
-      console.log("\x1b[32m", `${answer.title} is now a role in the ${answer.department_id} department.`);
+      for (let i = 0; i < deptNameArray.length; i++) {
+        if (answer.department_name == deptNameArray[i]) {
+        outputDeptID = parseInt(deptIdArray[i]);       
+        }  
+      };
+      connection.query("INSERT INTO roles (title, salary, department_id) VALUES (?,?,?)", [answer.title, answer.salary, outputDeptID]);
+      console.log("\x1b[32m", `${answer.title} is now a role in the ${answer.department_name} department (${outputDeptID}).`);
       runSearch();
 
     });
 
 }
 function addE() {
+  //employee Role arrays
+  let empTitleArray = [];
+  let empIdArray = [];
+  let outputRoleID;
+
+  //getting department list
+    connection.query("SELECT title, addid FROM roles", function (err, res) {
+      if (err) throw err;
+      for (var i = 0; i < res.length; i++) {
+        empTitleArray.push(res[i].title);
+        empIdArray.push(res[i].addid);
+      }
+    });
   inquirer
     .prompt([
-    
       {
         name: "first_name",
         type: "input",
@@ -216,9 +246,10 @@ function addE() {
         message: "Please input employees last name"
       },
       {
-        name: "role_id",
-        type: "input",
-        message: "Please input a role id"
+        name: "role_name",
+        type: "list",
+        message: "Please select a role",
+        choices: empTitleArray
       },
       {
         name: "manager_id",
@@ -227,11 +258,15 @@ function addE() {
       }]
 
     ).then(function (answer) {
-      // var values = [id, deptname];
-      // var query = "INSERT INTO department (id, deptname) VALUE  = ? ?";
-      connection.query("INSERT INTO employee ( first_name, last_name, role_id, manager_id) VALUES (?,?,?,?)", 
-      [answer.first_name, answer.last_name, answer.role_id, answer.manager_id],
-       function (err, res) {
+      for (let i = 0; i < empTitleArray.length; i++) {
+        if (answer.role_name == empTitleArray[i]) {
+        outputRoleID = parseInt(empIdArray[i]);       
+        }  
+      };
+    
+      connection.query("INSERT INTO employee (first_name, last_name, role_name, manager_id) VALUES (?,?,?,?)", 
+      [answer.first_name, answer.last_name, outputRoleID, answer.manager_id],
+       function (err) {
         if (err) throw err;
       });
       console.log("\x1b[32m", `${answer.first_name} ${answer.last_name} was added to employees.`);
