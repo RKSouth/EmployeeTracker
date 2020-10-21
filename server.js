@@ -256,46 +256,82 @@ function addE() {
     });
 
 }
-function addE() {
-  inquirer
-    .prompt([
+// doesn't work yet --will get it working somday!
+// function addE() {
+//   //employee Role arrays
+//   let empTitleArray = [];
+//   let empIdArray = [];
+//   let outputRoleID;
+
+//   let mngIdArray = [];
+//   let mngArray = [];
+//   let output;
+
+//   //getting roles for employee array
+//     connection.query("SELECT title, addid FROM roles", function (err, res) {
+//       if (err) throw err;
+//       for (var i = 0; i < res.length; i++) {
+//         empTitleArray.push(res[i].title);
+//         empIdArray.push(res[i].addid);
+//       }
+//     });
+//     //manager id list
+//     // LEFT JOIN (select concat(first_name,' ',last_name) as manager, empid from employee) as mgr on mgr.empid = employee.manager_id;
+//     connection.query("SELECT mgr.manager, manager_id FROM employee LEFT JOIN (select concat(first_name,' ',last_name) as manager, empid from employee) as mgr on mgr.empid = employee.manager_id", function (err, res) {
+//       if (err) throw err;
+//       for (var i = 0; i < res.length; i++) {
+//         mngArray.push(res[i].manager);
+//         mngIdArray.push(res[i].manager_id);
+//       }
     
-      {
-        name: "first_name",
-        type: "input",
-        message: "Please input employees first name"
-      },
-      {
-        name: "last_name",
-        type: "input",
-        message: "Please input employees last name"
-      },
-      {
-        name: "role_id",
-        type: "input",
-        message: "Please input a role id"
-      },
-      {
-        name: "manager_id",
-        type: "input",
-        message: "Please input a manager id"
-      }]
+//   inquirer
+//     .prompt([
+//       {
+//         name: "first_name",
+//         type: "input",
+//         message: "Please input employees first name"
+//       },
+//       {
+//         name: "last_name",
+//         type: "input",
+//         message: "Please input employees last name"
+//       },
+//       {
+//         name: "role_name",
+//         type: "list",
+//         message: "Please select a role",
+//         choices: empTitleArray
+//       },
+//       {
+//         name: "manager_id",
+//         type: "list",
+//         message: "Please select a manager",
+//         choices: mngArray
+//       }]).then(function (answer) {
+//       for (let i = 0; i < empTitleArray.length; i++) {
+//         if (answer.role_name == empTitleArray[i]) {
+//         outputRoleID = parseInt(empIdArray[i]);       
+//         }  
+//       };
+//       for (let i = 0; i < mngArray.length; i++) {
+//         if (answer.manager_id == mngArray[i]) {
+//         output = parseInt(mngIdArray[i]);       
+//         }  
+//       };
+//       console.log(output);
+//       console.log(outputRoleID);
+//       connection.query("INSERT INTO employee (first_name, last_name, role_name, manager_id) VALUES (?,?,?,?)", 
+//       [answer.first_name, answer.last_name, outputRoleID, output],
+//        function (err) {
+//         if (err) throw err;
+//       });
+//       console.log("\x1b[32m", `${answer.first_name} ${answer.last_name} was added to employees and now works for ${answer.manager_id}.`);
+//       runSearch();
 
-    ).then(function (answer) {
-      // var values = [id, deptname];
-      // var query = "INSERT INTO department (id, deptname) VALUE  = ? ?";
-      connection.query("INSERT INTO employee ( first_name, last_name, role_id, manager_id) VALUES (?,?,?,?)", 
-      [answer.first_name, answer.last_name, answer.role_id, answer.manager_id],
-       function (err, res) {
-        if (err) throw err;
-      });
-      console.log("\x1b[32m", `${answer.first_name} ${answer.last_name} was added to employees.`);
-      runSearch();
+//     });
+//   });
 
-    });
-
-}
-
+// }
 
 function updateER() {
   //for the group that you are in
