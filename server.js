@@ -30,8 +30,8 @@ function runSearch() {
         "Add departments, roles or employees",
         "View departments, roles or employees",
         "Update employee roles",
-        "Update employee mangers",
-        "View employees by manager",
+        "Update an employees manager",
+        // "View employees by manager",
         "Delete departments, roles, or employees"
       ]
     })
@@ -46,19 +46,18 @@ function runSearch() {
         case "Update employee roles":
           updateER();
           break;
-        case "Update employee managers":
+        case "Update an employees manager":
           updateEMS();
           break;
-        case "View employees by manager":
-          viewEByM();
-          break;
+        // case "View employees by manager":
+        //   viewEByM();
+        //   break;
         case "Delete departments, roles, or employees":
           forgetDRE();
 
       }
     });
 }
-//NEED DEPARTMENT, ROLE, EMPLOYEE CLASSES TO THEN CALL 
 
 //main view function
 function viewDRE() {
@@ -73,7 +72,7 @@ function viewDRE() {
     .then(function (answer) {
       switch (answer.view) {
         case "departments":
-          viewD(answer.view);
+          viewD();
           break;
         case "roles":
           viewR();
@@ -91,34 +90,35 @@ function viewDRE() {
 }
 
 function viewD() {
-  //add manager id and have it be the same as department id- because
-  var query = "SELECT deptid, deptname, manager FROM department";
+  var query = "SELECT deptid, deptname FROM department";
   console.log("You have chosen to view the departments");
   connection.query(query, function (err, res) {
     if (err) throw err;
     console.table(res);
-    // for (var i = 0; i < res.length; i++) {
-    //   console.log("id: " + res[i].deptid + " || Name: " + res[i].deptname);
-    // } if (err) throw err;
+    runSearch();
   });
-  runSearch();
+ 
 }
 
 function viewR() {
   var query = "SELECT roles.addid , roles.title , roles.salary AS salary, department.deptname AS department FROM roles";
   query += " LEFT JOIN department ON (roles.department_id = department.deptid)";
   connection.query(query, function (err, res) {
+    if (err) throw err;
     console.table(res);
+    runSearch();
   });
-  runSearch();
+  
 }
 
 function viewE() {
-  var query = "SELECT employee.empid, employee.first_name, employee.last_name, roles.title, department.deptname AS department, roles.salary FROM employee LEFT JOIN roles on employee.role_id = roles.addid LEFT JOIN department on roles.department_id = department.deptid;";
+  var query = "SELECT employee.empid, employee.first_name, employee.last_name, roles.title, department.deptname AS department, roles.salary, mgr.managername FROM employee LEFT JOIN roles on employee.role_id = roles.addid LEFT JOIN department on roles.department_id = department.deptid LEFT JOIN (select concat(first_name,' ',last_name) as managername, empid from employee) as mgr on mgr.empid = employee.manager_id;";
   connection.query(query, function (err, res) {
+    if (err) throw err;
     console.table(res);
+    runSearch();
   });
-  runSearch();
+ 
 }
 //main add function
 function addDRE() {
@@ -157,38 +157,22 @@ function addD() {
         name: "deptname",
         type: "input",
         message: "Please input department name"
-      },  {
-        name: "manager",
-        type: "input",
-        message: "Please input department manager"
       }]
 
     ).then(function (answer) {
       // var values = [id, deptname];
       // var query = "INSERT INTO department (id, deptname) VALUE  = ? ?";
-      connection.query("INSERT INTO department (manager, deptname) VALUES (?,?)", [answer.manager, answer.deptname]);
-      console.log("\x1b[32m", `${answer.deptname} was added to departments.`);
+      connection.query("INSERT INTO department  (deptname) VALUES (?)", 
+      [answer.deptname], function (err) {
+        if (err) throw err;
+      });
+      console.log("\x1b[32m", `${answer.deptname} was added to the list of departments.`);
       runSearch();
 
     });
-  // viewD();
-
-  // })
-
-
 }
+
 function addR() {
-//  let dArray= [];
-//  let dArrayID= [];
-//   var query = "SELECT department.deptid, department.deptname FROM department;";
-//   connection.query(query, function (err, res) {
-//     if (err) throw err;
-   
-//     for (var i = 0; i < res.length; i++) {
-//       dArray.push(res[i].deptid);
-//       console.log(dArray);
-//       console.log("         ")
-//     }});
    
   inquirer
     .prompt([
@@ -205,11 +189,11 @@ function addR() {
       {
         name: "department_id",
         type: "input",
-        message: "Please choose which department this role is for(choose a number)"
+        message: "Please choose which department this role is for (choose a number)"
+        //NEEDS A VALIDATE
       }]
 
     ).then(function (answer) {
-      // connection.query(`Update employee SET role_id = (select roleid from roles where title = ?) WHERE first_name = ?`, [answer.roles, answer.employees]);
       connection.query("INSERT INTO roles (title, salary, department_id) VALUES (?,?,?)", [answer.title, answer.salary, answer.department_id]);
       console.log("\x1b[32m", `${answer.title} is now a role in the ${answer.department_id} department.`);
       runSearch();
@@ -245,7 +229,11 @@ function addE() {
     ).then(function (answer) {
       // var values = [id, deptname];
       // var query = "INSERT INTO department (id, deptname) VALUE  = ? ?";
-      connection.query("INSERT INTO employee ( first_name, last_name, role_id, manager_id) VALUES (?,?,?,?)", [answer.first_name, answer.last_name, answer.role_id, answer.manager_id]);
+      connection.query("INSERT INTO employee ( first_name, last_name, role_id, manager_id) VALUES (?,?,?,?)", 
+      [answer.first_name, answer.last_name, answer.role_id, answer.manager_id],
+       function (err, res) {
+        if (err) throw err;
+      });
       console.log("\x1b[32m", `${answer.first_name} ${answer.last_name} was added to employees.`);
       runSearch();
 
@@ -254,6 +242,7 @@ function addE() {
 }
 
 function updateER() {
+  //for the group that you are in
   let eArray = [];
   let eArrayID = [];
   let rArray = [];
@@ -294,48 +283,36 @@ function updateER() {
         console.log("\x1b[32m", `${answer.employees}'s role was updated to ${answer.roles}.`);
         runSearch();
 
-
-
       });
 
 
   });
 };
 
-  function updateEMS() {
+function updateEMS() {
+
     //update employee managers change roles to managers
     let eArray = [];
     let mArray = [];
-    let rArray = [];
 //getting managers id
-  connection.query("SELECT manager_id FROM roles", function (err, res) {
+  connection.query("SELECT empid FROM employee", function (err, res) {
     if (err) throw err;
     for (var i = 0; i < res.length; i++) {
-      rArray.push(res[i].manager_id);
+      mArray.push(res[i].empid);
     }
-
   });
-//getting managers name
-  connection.query("SELECT manager, deptid FROM department", function (err, res) {
-      if (err) throw err;
-      for (var i = 0; i < res.length; i++) {
-        mArray.push(res[i]);
-        console.table(mArray);
-      }
-  
-    });
+
   //getting employee to update
-    connection.query( "SELECT employee.empid, employee.first_name FROM employee;", function (err, res) {
+  var query =  "SELECT employee.first_name FROM employee;";
+    connection.query(query, function (err, res) {
       if (err) throw err;
-     
+
       for (var i = 0; i < res.length; i++) {
         eArray.push(res[i].first_name);
-        // eArrayID.push(res[i]);
-   
-      }
+      };
       inquirer
         .prompt([{
-          name: "employees",
+          name: "employeeToUpdate",
           type: "list",
           message: "Who's manager would you like to change?",
           choices: eArray
@@ -344,17 +321,13 @@ function updateER() {
           type: "list",
           message: "Who is there new manager?",
           choices: mArray
-        }]).then(function (answer) {
-  
-  //look up role id number so we can attach it to employee table
-  //look up employee id and change the employee
-  //change manager id to the person you selected
-          connection.query(`Update employee SET manager_id = (select manager_id from roles where title = ?) WHERE first_name = ?`, [answer.roles, answer.employees]);
-          console.log("\x1b[32m", `${answer.employees}'s role was updated to ${answer.roles}.`);
+        }])
+        .then(function (answer) {
+          connection.query(`Update employee SET manager_id =(select deptid  FROM department WHERE deptid = ?) WHERE first_name = ?;`, 
+          [answer.managers, answer.employeeToUpdate],  function (err) {
+            if (err) throw err;});
+          console.log("\x1b[32m", `${answer.employeeToUpdate}'s manager was updated to ${answer.managers}.`);
           runSearch();
-  
-  
-  
         });
   
   
@@ -404,9 +377,6 @@ function updateER() {
         // console.table(ddArray);
       }
       console.log(ddArray);
-   
-    // .then( 
-      // function(ddArray){
       inquirer.
       prompt([
         {name: "selectDepartment",
@@ -415,28 +385,75 @@ function updateER() {
         choices: ddArray
       }
     ]).then ( function(answer) {
-
-    connection.query('DELETE department FROM department WHERE deptname = ?', [answer.selectDepartment], function (err, results) {
+    connection.query('DELETE department FROM department WHERE deptname = ?', [answer.selectDepartment], function (err, answer) {
     if (err) throw error;
-    console.log('deleted the ' + results.selectDepartment + ' ');
+    console.log('deleted the ' + answer.selectDepartment + ' ');
+    runSearch();
   })
-      });
-    // })
-
-    
-  //   connection.query('DELETE FROM department WHERE title = "wrong"', function (error, results, fields) {
-  //   if (error) throw error;
-  //   console.log('deleted ' + results.affectedRows + ' rows');
-  // })
   });
 
-  runSearch();
+  });
+
   }
 
   function forgetR() {
+    let drArray= [];
+    connection.query("SELECT title FROM roles", function (err, res) {
+      if (err) throw err;
+      for (var i = 0; i < res.length; i++) {
+        drArray.push(res[i].title);
+    
+      }
+     
+
+      inquirer.
+      prompt([
+        {name: "selectRole",
+        type: "list",
+        message: "What role would you like to delete?",
+        choices: drArray
+      }
+    ]).then ( function(answer) {
+
+    connection.query('DELETE roles FROM roles WHERE roles = ?', 
+    [answer.selectRole], function (err, results) {
+    if (err) throw error;
+    console.log('deleted the ' + results.selectRole + ' role ');
+  });
+  runSearch();
+      });
+  });
 
   }
 
   function forgetE() {
+    let deArray= [];
+    connection.query("SELECT first_name FROM employee", function (err, res) {
+      if (err) throw err;
+      for (var i = 0; i < res.length; i++) {
+        deArray.push(res[i].first_name);
+  
+      }
+      // console.log(ddArray);
+   
+  
+      inquirer.
+      prompt([
+        {name: "selectEmployee",
+        type: "list",
+        message: "What Employee would you like to delete?",
+        choices: deArray
+      }
+    ]).then ( function(answer) {
 
+    connection.query('DELETE employee FROM employee WHERE first_name = ?', 
+    [answer.selectEmployee], 
+    function (err, results) {
+    if (err) throw error;
+    console.log('deleted the ' + results.selectEmployee + ' ');
+  })
+  runSearch();
+      });
+
+  });
   }
